@@ -137,18 +137,14 @@ class StripeSdk: RCTEventEmitter, STPBankSelectionViewControllerDelegate, UIAdap
         }
         if let clientSecret = result["clientSecret"] as? String {
             paymentSheetIntentCreationCallback(.success(clientSecret))
-        } else {
-            class ConfirmationError: Error, LocalizedError {
-                private var errorMessage: String
-                init(errorMessage: String) {
-                    self.errorMessage = errorMessage
-                }
-                public var errorDescription: String? {
-                    return errorMessage
-                }
-            }
+        } else {                  
             let errorParams = result["error"] as? NSDictionary
-            let error = ConfirmationError.init(errorMessage: errorParams?["localizedMessage"] as? String ?? "An unknown error occurred.")
+            let errorMessage = errorParams?["localizedMessage"] as? String ?? "An unknown error occurred."
+                  
+            let error = NSError(domain: "IntentCreationErrorDomain", 
+                                code: 0, 
+                                userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        
             paymentSheetIntentCreationCallback(.failure(error))
         }
     }
